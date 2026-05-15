@@ -1,8 +1,7 @@
 export default function Header({ pref, setTheme, range, setRange }) {
   const opts = [
-    { id: 'dark',   icon: 'moon',           label: 'Dark'  },
-    { id: 'light',  icon: 'sun',            label: 'Light' },
-    { id: 'system', icon: 'device-laptop',  label: 'Auto'  },
+    { id: 'dark',  icon: 'moon', label: 'Dark'  },
+    { id: 'light', icon: 'sun',  label: 'Light' },
   ]
 
   return (

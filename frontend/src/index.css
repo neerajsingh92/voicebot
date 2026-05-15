@@ -17,9 +17,10 @@
   --funnel-track: rgba(255,255,255,0.05);
   --row-hover: rgba(255,255,255,0.02);
   --row-div: rgba(255,255,255,0.04);
-  --toggle-bg: #1A2236;
-  --opt-active-bg: #0F1629;
-  --opt-active-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  --toggle-bg: rgba(15,23,42,0.85);
+  --opt-active-bg: #2563EB;
+  --opt-active-c: #FFFFFF;
+  --opt-active-shadow: 0 4px 14px rgba(37,99,235,0.45);
   --tbtn-bg: #1A2236;
   --tbtn-bdr: rgba(255,255,255,0.12);
   --tbtn-c: #94A3B8;
@@ -68,8 +69,9 @@
   --row-hover: rgba(0,0,0,0.02);
   --row-div: rgba(0,0,0,0.05);
   --toggle-bg: #E2E8F0;
-  --opt-active-bg: #FFFFFF;
-  --opt-active-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  --opt-active-bg: #0F172A;
+  --opt-active-c: #FFFFFF;
+  --opt-active-shadow: 0 4px 12px rgba(15,23,42,0.18);
   --tbtn-bg: #F1F5F9;
   --tbtn-bdr: rgba(0,0,0,0.1);
   --tbtn-c: #64748B;
@@ -245,10 +247,10 @@ body {
 
 /* ── Theme toggle pill ───────────────────────── */
 .t-pill { display: inline-flex; align-items: center; background: var(--toggle-bg); border: 1px solid var(--border-acc); border-radius: 24px; padding: 3px; gap: 2px; transition: background 0.25s, border-color 0.25s; }
-.t-opt  { display: flex; align-items: center; height: 26px; border-radius: 18px; cursor: pointer; font-size: 12px; color: var(--text3); transition: background .2s, color .2s, box-shadow .2s; white-space: nowrap; padding: 0 8px; gap: 4px; user-select: none; }
-.t-opt i { font-size: 13px; }
-.t-opt.active { background: var(--opt-active-bg); color: var(--text); box-shadow: var(--opt-active-shadow); }
-.t-opt:not(.active):hover { color: var(--text2); }
+.t-opt  { display: flex; align-items: center; height: 28px; border-radius: 18px; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--text3); transition: background .2s, color .2s, box-shadow .2s; white-space: nowrap; padding: 0 12px; gap: 5px; user-select: none; border: none; }
+.t-opt i { font-size: 14px; }
+.t-opt.active { background: var(--opt-active-bg); color: var(--opt-active-c); box-shadow: var(--opt-active-shadow); }
+.t-opt:not(.active):hover { color: var(--text); background: rgba(128,128,128,0.12); }
 
 /* ── Range buttons ───────────────────────────── */
 .tbtn { background: var(--tbtn-bg); border: 1px solid var(--tbtn-bdr); border-radius: 6px; color: var(--tbtn-c); padding: 5px 11px; font-size: 11px; cursor: pointer; transition: all .15s; font-family: inherit; }
@@ -302,9 +304,10 @@ body {
   --funnel-track: rgba(148,163,184,0.12);
   --row-hover: rgba(148,163,184,0.06);
   --row-div: rgba(148,163,184,0.12);
-  --toggle-bg: rgba(15,23,42,0.72);
-  --opt-active-bg: #F8FAFC;
-  --opt-active-shadow: 0 8px 22px rgba(2,6,23,0.28);
+  --toggle-bg: rgba(15,23,42,0.85);
+  --opt-active-bg: #2563EB;
+  --opt-active-c: #FFFFFF;
+  --opt-active-shadow: 0 4px 14px rgba(37,99,235,0.45);
   --tbtn-bg: transparent;
   --tbtn-bdr: transparent;
   --tbtn-c: #CBD5E1;
@@ -339,8 +342,9 @@ body {
   --row-hover: rgba(37,99,235,0.04);
   --row-div: rgba(15,23,42,0.08);
   --toggle-bg: #E2E8F0;
-  --opt-active-bg: #FFFFFF;
-  --opt-active-shadow: 0 6px 18px rgba(15,23,42,0.12);
+  --opt-active-bg: #0F172A;
+  --opt-active-c: #FFFFFF;
+  --opt-active-shadow: 0 4px 12px rgba(15,23,42,0.18);
   --tbtn-bg: transparent;
   --tbtn-bdr: transparent;
   --tbtn-c: #475569;
