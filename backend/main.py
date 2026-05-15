@@ -1,8 +1,13 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import database as db
 import db_queries as q
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 
 @asynccontextmanager
@@ -125,3 +130,12 @@ async def team_stats(range: str = RangeParam):
     avg duration, outcome distribution, MCP usage.
     """
     return await q.get_team_stats(range)
+
+
+# ── Serve built React frontend (production) ───────────────────────────────
+if STATIC_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        return FileResponse(STATIC_DIR / "index.html")
