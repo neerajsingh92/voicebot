@@ -5,6 +5,27 @@ const PILL = { done:'pill-done', pend:'pill-pend', work:'pill-work', fail:'pill-
 const CLRK = { teal:'var(--teal-c)', blue:'var(--blue-c)', purple:'var(--purp-c)', amber:'var(--ambr-c)', red:'var(--red-c)', gray:'var(--gray-c)' }
 
 /* ── Sessions table ──────────────────────────────────────── */
+function exportCSV(rows) {
+  const headers = ['Customer', 'Agent', 'Outcome', 'Duration', 'Status', 'Started At']
+  const lines = rows.map(s => [
+    s.customer_name,
+    s.agent,
+    s.outcome,
+    s.duration,
+    s.status,
+    new Date(s.started_at).toLocaleString(),
+  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+
+  const csv = [headers.join(','), ...lines].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `sessions-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 function SessionsTable({ data, loading }) {
   if (loading || !data) return (
     <div className="card">
@@ -23,33 +44,38 @@ function SessionsTable({ data, loading }) {
           <p className="card-subtitle">Latest customer conversations and outcomes</p>
         </div>
       </div>
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Customer</th><th>Agent</th><th>Outcome</th><th>Dur.</th><th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map(s => (
-            <tr key={s.id}>
-              <td>
-                <div style={{ display:'flex', alignItems:'center', gap:7 }}>
-                  <div className="avatar" style={{ background:`var(--${s.color_key}-bg)`, color:CLRK[s.color_key] }}>
-                    {s.initials}
-                  </div>
-                  {s.customer_name}
-                </div>
-              </td>
-              <td><span style={{ fontSize:10, color:CLRK[s.color_key] }}>{s.agent}</span></td>
-              <td><span className={`pill ${PILL[s.status_key]}`}>{s.outcome}</span></td>
-              <td style={{ fontVariantNumeric:'tabular-nums' }}>{s.duration}</td>
-              <td><span className={`pill ${PILL[s.status_key]}`}>{s.status}</span></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {data.length === 0
+        ? <div className="no-data-center"><i className="ti ti-list-search" /><span>No sessions found</span></div>
+        : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th><th>Agent</th><th>Outcome</th><th>Dur.</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map(s => (
+                <tr key={s.id}>
+                  <td>
+                    <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                      <div className="avatar" style={{ background:`var(--${s.color_key}-bg)`, color:CLRK[s.color_key] }}>
+                        {s.initials}
+                      </div>
+                      {s.customer_name}
+                    </div>
+                  </td>
+                  <td><span style={{ fontSize:10, color:CLRK[s.color_key] }}>{s.agent}</span></td>
+                  <td><span className={`pill ${PILL[s.status_key]}`}>{s.outcome}</span></td>
+                  <td style={{ fontVariantNumeric:'tabular-nums' }}>{s.duration}</td>
+                  <td><span className={`pill ${PILL[s.status_key]}`}>{s.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
       <div style={{ marginTop:10, textAlign:'right' }}>
-        <button className="outline-action">
+        <button className="outline-action" onClick={() => exportCSV(data)} disabled={data.length === 0}>
           Export CSV
         </button>
       </div>
@@ -77,19 +103,26 @@ function McpCard({ data, loading }) {
           <p className="card-subtitle">Automation usage and reliability</p>
         </div>
       </div>
-      <div style={{ display:'flex', alignItems:'baseline', gap:6, marginBottom:12 }}>
-        <span style={{ fontSize:20, fontWeight:700, color:'var(--text)' }}>{data.total.toLocaleString()}</span>
-        <span style={{ fontSize:11, color:'var(--text3)' }}>{data.success_rate}% success</span>
-      </div>
-      {data.tools.map(t => (
-        <div className="mcp-row" key={t.name}>
-          <span className="mcp-name">{t.name}</span>
-          <div className="mcp-track">
-            <div className="mcp-fill" style={{ width:`${Math.round(t.count/max*100)}%`, background:t.color }} />
-          </div>
-          <span className="mcp-cnt">{t.count.toLocaleString()}</span>
-        </div>
-      ))}
+      {data.no_data
+        ? <div className="no-data-center"><i className="ti ti-cpu-off" /><span>No MCP tool calls for this period</span></div>
+        : (
+          <>
+            <div style={{ display:'flex', alignItems:'baseline', gap:6, marginBottom:12 }}>
+              <span style={{ fontSize:20, fontWeight:700, color:'var(--text)' }}>{data.total.toLocaleString()}</span>
+              <span style={{ fontSize:11, color:'var(--text3)' }}>{data.success_rate}% success</span>
+            </div>
+            {data.tools.map(t => (
+              <div className="mcp-row" key={t.name}>
+                <span className="mcp-name">{t.name}</span>
+                <div className="mcp-track">
+                  <div className="mcp-fill" style={{ width:`${Math.round(t.count/max*100)}%`, background:t.color }} />
+                </div>
+                <span className="mcp-cnt">{t.count.toLocaleString()}</span>
+              </div>
+            ))}
+          </>
+        )
+      }
       <div style={{ marginTop:10, paddingTop:8, borderTop:'1px solid var(--border)', display:'flex', justifyContent:'space-between', fontSize:11, color:'var(--text3)' }}>
         <span>Avg: <strong style={{ color:'var(--text)' }}>{data.avg_ms}ms</strong></span>
         <span>Failures: <strong style={{ color:'var(--red-c)' }}>{data.failures}</strong></span>

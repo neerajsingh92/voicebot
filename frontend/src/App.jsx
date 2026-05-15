@@ -30,13 +30,14 @@ export default function App() {
   const agents    = useApi(() => api.agents(range),      [range])
   const outcomes  = useApi(() => api.outcomes(range),    [range])
   const funnel    = useApi(() => api.funnel(range),      [range])
-  const followUps = useApi(() => api.followUps(),        [])
-  const sessions  = useApi(() => api.sessions(6),        [])
-  const mcpTools  = useApi(() => api.mcpTools(range),    [range])
-  const health    = useApi(() => api.healthStatus(),     [])
-  const subStatus = useApi(() => api.subStatus(),        [])
+  const followUps = useApi(() => api.followUps(range),        [range])
+  const sessions  = useApi(() => api.sessions(range, 6),      [range])
+  const mcpTools  = useApi(() => api.mcpTools(range),         [range])
+  const health    = useApi(() => api.healthStatus(),           [])
+  const subStatus = useApi(() => api.subStatus(range),         [range])
 
   const anyError = [dashboard, volume, agents, outcomes, funnel].find(d => d.error)
+  const rangeTitle = range === '7d' ? 'Last 7 days performance' : range === '30d' ? 'Last 30 days performance' : 'Voicebot performance today'
 
   return (
     <div className="app-wrap">
@@ -65,7 +66,7 @@ export default function App() {
         </div>
       )}
 
-      <Section eyebrow="At a glance" title="Today’s voicebot performance">
+      <Section eyebrow="At a glance" title={rangeTitle}>
         <KpiGrid
           data={dashboard.data}
           loading={dashboard.loading}

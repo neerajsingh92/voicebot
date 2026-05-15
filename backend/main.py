@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import demo_data as d
 import database as db
+import db_queries as q
 
 
 @asynccontextmanager
@@ -14,8 +14,8 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(
     title="Voice Bot Analytics API",
-    description="Demo API for the Voice Bot dashboard — Plivo + Gemini Live + MCP",
-    version="1.0.0",
+    description="FastAPI backend — Plivo + Gemini Live + MCP + PostgreSQL",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
@@ -29,74 +29,99 @@ app.add_middleware(
 
 RangeParam = Query("1d", description="Time range: 1d | 7d | 30d")
 
-# ── Health check ──────────────────────────────────────────────────────────
+# ── Health ────────────────────────────────────────────────────────────────
 @app.get("/health", tags=["meta"])
 async def ping():
-    return {"status": "ok", "version": "1.0.0"}
+    return {"status": "ok", "version": "2.0.0"}
 
-# ── Database ping ─────────────────────────────────────────────────────────
 @app.get("/api/db-ping", tags=["meta"])
 async def db_ping():
-    """Verify PostgreSQL connectivity."""
-    rows = await db.fetch("SELECT id, code, name, description, created_at FROM agent_types;")
-    return {"status": "connected", "result": [dict(r) for r in rows]}
+    rows = await db.fetch("SELECT id, code, name FROM agent_types ORDER BY id")
+    return {"status": "connected", "agent_types": [dict(r) for r in rows]}
 
-# ── Dashboard summary ─────────────────────────────────────────────────────
+# ── Dashboard ─────────────────────────────────────────────────────────────
 @app.get("/api/dashboard", tags=["dashboard"])
 async def dashboard(range: str = RangeParam):
-    """Top-level KPI summary from call_sessions, subscriptions, mcp_tool_calls."""
-    return d.get_dashboard(range)
+    return await q.get_dashboard(range)
 
 # ── Call volume chart ─────────────────────────────────────────────────────
 @app.get("/api/call-volume", tags=["calls"])
 async def call_volume(range: str = RangeParam):
-    """Hourly / daily / weekly call volume from call_sessions.started_at."""
-    return d.get_call_volume(range)
+    return await q.get_call_volume(range)
 
-# ── Agent type performance ────────────────────────────────────────────────
+# ── Agent cards ───────────────────────────────────────────────────────────
 @app.get("/api/agents", tags=["agents"])
 async def agents(range: str = RangeParam):
-    """All 4 agent type stats: outcomes, call counts, links, payments."""
-    return d.get_agents(range)
+    return await q.get_agents(range)
 
-# ── Call outcome breakdown ────────────────────────────────────────────────
+# ── Outcome donut ─────────────────────────────────────────────────────────
 @app.get("/api/outcomes", tags=["calls"])
 async def outcomes(range: str = RangeParam):
-    """call_outcomes grouped by outcome_type for the donut chart."""
-    return d.get_outcomes(range)
+    return await q.get_outcomes(range)
 
 # ── Subscription funnel ────────────────────────────────────────────────────
 @app.get("/api/funnel", tags=["subscriptions"])
 async def funnel(range: str = RangeParam):
-    """Funnel: calls → interested → link sent → opened → paid."""
-    return d.get_funnel(range)
+    return await q.get_funnel(range)
 
 # ── Follow-up queue ────────────────────────────────────────────────────────
 @app.get("/api/follow-ups", tags=["follow-ups"])
-async def follow_ups():
-    """Pending follow_ups grouped by agent_type_id with reasons."""
-    return d.get_follow_ups()
+async def follow_ups(range: str = RangeParam):
+    return await q.get_follow_ups(range)
 
-# ── Recent call sessions ──────────────────────────────────────────────────
+# ── Recent sessions ────────────────────────────────────────────────────────
 @app.get("/api/sessions", tags=["calls"])
-async def sessions(limit: int = Query(6, ge=1, le=20)):
-    """Latest call_sessions joined with customers and agent_types."""
-    return d.get_sessions(limit)
+async def sessions(range: str = RangeParam, limit: int = Query(6, ge=1, le=20)):
+    return await q.get_sessions(range, limit)
 
-# ── MCP tool calls ────────────────────────────────────────────────────────
+# ── MCP tools ─────────────────────────────────────────────────────────────
 @app.get("/api/mcp-tools", tags=["mcp"])
 async def mcp_tools(range: str = RangeParam):
-    """mcp_tool_calls grouped by tool_name with counts and latency."""
-    return d.get_mcp_tools(range)
+    return await q.get_mcp_tools(range)
 
 # ── System health ─────────────────────────────────────────────────────────
 @app.get("/api/health-status", tags=["system"])
 async def health_status():
-    """Service status: Plivo, Gemini Live, MCP, PostgreSQL, Quart."""
-    return d.get_health()
+    return await q.get_health()
 
-# ── Subscription status split ─────────────────────────────────────────────
+# ── Subscription status ────────────────────────────────────────────────────
 @app.get("/api/subscriptions/status", tags=["subscriptions"])
-async def sub_status():
-    """subscriptions grouped by status for the horizontal bar chart."""
-    return d.get_sub_status()
+async def sub_status(range: str = RangeParam):
+    return await q.get_sub_status(range)
+
+# ══════════════════════════════════════════════════════════════════════════
+#  CONVERSATIONS / TEAMS  section
+# ══════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/conversations", tags=["conversations"])
+async def conversations(
+    range:  str = RangeParam,
+    limit:  int = Query(20, ge=1, le=100),
+    offset: int = Query(0,  ge=0),
+):
+    """
+    Paginated list of call sessions with transcript preview.
+    Use ?range=1d|7d|30d, ?limit=, ?offset= for pagination.
+    """
+    return await q.get_conversations(range, limit, offset)
+
+
+@app.get("/api/conversations/{session_id}", tags=["conversations"])
+async def conversation_detail(session_id: str):
+    """
+    Full detail for one call session:
+    transcript, MCP tool calls, outcome, follow-up, subscription link.
+    """
+    result = await q.get_conversation_detail(session_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return result
+
+
+@app.get("/api/teams", tags=["conversations"])
+async def team_stats(range: str = RangeParam):
+    """
+    Per-agent-type breakdown: call counts, completion rate,
+    avg duration, outcome distribution, MCP usage.
+    """
+    return await q.get_team_stats(range)

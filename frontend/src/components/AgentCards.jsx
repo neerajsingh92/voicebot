@@ -22,22 +22,28 @@ function AgentCard({ agent }) {
         </div>
       </div>
 
-      {primaryOutcome && (
-        <div className="agent-hero">
-          <span>{primaryOutcome.label}</span>
-          <strong>{primaryOutcome.pct}%</strong>
-        </div>
-      )}
-
-      {agent.outcomes.map(o => (
-        <div className="bar-row" key={o.label}>
-          <span className="bar-lbl">{o.label}</span>
-          <div className="bar-track">
-            <div className="bar-fill" style={{ width: `${o.pct}%`, background: o.color }} />
-          </div>
-          <span className="bar-pct">{o.pct}%</span>
-        </div>
-      ))}
+      {agent.total_calls === 0
+        ? <div className="no-data-center" style={{ padding: '12px 0' }}><i className="ti ti-phone-off" /><span>No calls this period</span></div>
+        : (
+          <>
+            {primaryOutcome && (
+              <div className="agent-hero">
+                <span>{primaryOutcome.label}</span>
+                <strong>{primaryOutcome.pct}%</strong>
+              </div>
+            )}
+            {agent.outcomes.map(o => (
+              <div className="bar-row" key={o.label}>
+                <span className="bar-lbl">{o.label}</span>
+                <div className="bar-track">
+                  <div className="bar-fill" style={{ width: `${o.pct}%`, background: o.color }} />
+                </div>
+                <span className="bar-pct">{o.pct}%</span>
+              </div>
+            ))}
+          </>
+        )
+      }
 
       <div className="agent-stats">
         {agent.stats.map(s => {

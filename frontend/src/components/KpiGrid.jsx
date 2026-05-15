@@ -38,17 +38,22 @@ export default function KpiGrid({ data, loading }) {
 
   return (
     <>
+      {data.no_data && (
+        <div className="no-data-banner">
+          <i className="ti ti-info-circle" /> No call data found for this period
+        </div>
+      )}
       <div className="g4">
-        <KpiCard icon="phone-call" label="Total calls"    accent="#2563EB" value={fmt(data.total_calls)}        delta="+18"            sub="Compared with yesterday"  />
-        <KpiCard icon="circle-check" label="Completed"    accent="#059669" value={fmt(data.completed_calls)}    delta={`${data.completion_rate}%`} sub="Completion rate" />
-        <KpiCard icon="credit-card" label="Payments"      accent="#D97706" value={fmt(data.payments_received)}  delta="₹1.14L"          sub="Collected today"         />
-        <KpiCard icon="calendar-due" label="Follow-ups"   accent="#7C3AED" value={fmt(data.pending_follow_ups)} delta="+6"    deltaType="dn" sub="New follow-ups today"  />
+        <KpiCard icon="phone-call"   label="Total calls"          accent="#2563EB" value={fmt(data.total_calls)}          sub="Sessions in selected range"    />
+        <KpiCard icon="circle-check" label="Completed"            accent="#059669" value={fmt(data.completed_calls)}      sub={`${data.completion_rate}% completion rate`} />
+        <KpiCard icon="credit-card"  label="Payments"             accent="#D97706" value={fmt(data.payments_received)}    sub="Payment outcomes"              />
+        <KpiCard icon="calendar-due" label="Follow-ups"           accent="#7C3AED" value={fmt(data.pending_follow_ups)}   sub="Pending actions"               />
       </div>
       <div className="g4" style={{ marginBottom: 20 }}>
-        <KpiCard icon="activity" label="Active subscriptions" accent="#059669" value={fmt(data.active_subscriptions)} delta="+21"          sub="Added this week"     />
-        <KpiCard icon="clock"    label="Average duration"     accent="#2563EB" value={data.avg_duration_str}           sub="Minutes per conversation" />
-        <KpiCard icon="cpu"      label="MCP tool calls"       accent="#7C3AED" value={fmt(data.mcp_calls)}             delta={`${data.mcp_success_rate}%`} sub="Success rate" />
-        <KpiCard icon="file-text" label="Transcripts saved"   accent="#D97706" value={fmt(data.transcripts_saved)}     sub="Conversation turns logged"  />
+        <KpiCard icon="activity"   label="Active subscriptions"   accent="#059669" value={fmt(data.active_subscriptions)} sub="Currently active"              />
+        <KpiCard icon="clock"      label="Average duration"       accent="#2563EB" value={data.avg_duration_str}          sub="Minutes per conversation"      />
+        <KpiCard icon="cpu"        label="MCP tool calls"         accent="#7C3AED" value={fmt(data.mcp_calls)}            sub={`${data.mcp_success_rate}% success rate`} />
+        <KpiCard icon="file-text"  label="Transcripts saved"      accent="#D97706" value={fmt(data.transcripts_saved)}    sub="Conversation turns logged"     />
       </div>
     </>
   )

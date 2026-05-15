@@ -5,6 +5,14 @@ echo "╔═══════════════════════�
 echo "║   Voice Bot Analytics Dashboard      ║"
 echo "╚══════════════════════════════════════╝"
 
+# ── Use nvm Node if available (system node may be too old for Vite) ────────
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+
+NODE_BIN="$(command -v node)"
+NODE_VER="$($NODE_BIN --version 2>/dev/null)"
+echo "   Node: $NODE_VER  ($NODE_BIN)"
+
 # ── Backend ────────────────────────────────────────────────────────────────
 cd "$ROOT/backend"
 
@@ -19,7 +27,7 @@ BACKEND_PID=$!
 # ── Frontend ───────────────────────────────────────────────────────────────
 cd "$ROOT/frontend"
 
-[ ! -d "node_modules" ] && npm install -q
+[ ! -d "node_modules" ] && npm install
 
 echo "▶  Frontend →  http://localhost:3000"
 npm run dev &

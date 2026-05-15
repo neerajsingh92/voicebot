@@ -14,6 +14,7 @@ function FunnelCard({ data, loading }) {
       {[...Array(5)].map((_,i) => <div key={i} className="skeleton" style={{ height:28, marginBottom:4, borderRadius:4 }} />)}
     </div>
   )
+  const isEmpty = !data || data.length === 0 || data.every(s => s.value === 0)
   return (
     <div className="card">
       <div className="card-head">
@@ -25,16 +26,19 @@ function FunnelCard({ data, loading }) {
           <p className="card-subtitle">From call started to payment made</p>
         </div>
       </div>
-      {data.map(step => (
-        <div className="funnel-step" key={step.label}>
-          <div className="funnel-lbl">{step.label}</div>
-          <div className="funnel-track">
-            <div className="funnel-fill" style={{ width: `${step.pct}%`, background: step.color }} />
+      {isEmpty
+        ? <div className="no-data-center"><i className="ti ti-filter-off" /><span>No funnel data for this period</span></div>
+        : data.map(step => (
+          <div className="funnel-step" key={step.label}>
+            <div className="funnel-lbl">{step.label}</div>
+            <div className="funnel-track">
+              <div className="funnel-fill" style={{ width: `${step.pct}%`, background: step.color }} />
+            </div>
+            <div className="funnel-val">{step.value.toLocaleString()}</div>
+            <div className="funnel-rate" style={{ color: `var(--${step.color_key}-c)` }}>{step.pct}%</div>
           </div>
-          <div className="funnel-val">{step.value.toLocaleString()}</div>
-          <div className="funnel-rate" style={{ color: `var(--${step.color_key}-c)` }}>{step.pct}%</div>
-        </div>
-      ))}
+        ))
+      }
     </div>
   )
 }
@@ -87,20 +91,25 @@ function DonutCard({ data, loading, theme }) {
           <p className="card-subtitle">How conversations are ending</p>
         </div>
       </div>
-      <div className="donut-wrap">
-        <div className="chart-wrap donut-chart" style={{ height: 170, width: 170 }}>
-          <canvas ref={ref} role="img" aria-label="Donut chart of call outcome types." />
-        </div>
-        <div style={{ width:'100%', marginTop:10 }}>
-          {data.map(d => (
-            <div className="leg-row" key={d.label}>
-              <span className="leg-sq" style={{ background: d.color }} />
-              {d.label}
-              <span className="leg-pct">{d.pct}%</span>
+      {data.length === 0
+        ? <div className="no-data-center"><i className="ti ti-chart-donut-3" /><span>No outcome data for this period</span></div>
+        : (
+          <div className="donut-wrap">
+            <div className="chart-wrap donut-chart" style={{ height: 170, width: 170 }}>
+              <canvas ref={ref} role="img" aria-label="Donut chart of call outcome types." />
             </div>
-          ))}
-        </div>
-      </div>
+            <div style={{ width:'100%', marginTop:10 }}>
+              {data.map(d => (
+                <div className="leg-row" key={d.label}>
+                  <span className="leg-sq" style={{ background: d.color }} />
+                  {d.label}
+                  <span className="leg-pct">{d.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
     </div>
   )
 }
@@ -124,19 +133,26 @@ function QueueCard({ data, loading }) {
           <p className="card-subtitle">Open customer actions by agent</p>
         </div>
       </div>
-      <div className="queue-total">
-        <span style={{ fontSize:22, fontWeight:700, color:'var(--text)' }}>{data.total}</span>
-        <span style={{ fontSize:11, color:'var(--text3)' }}>total pending</span>
-      </div>
-      {data.items.map(item => (
-        <div className="queue-row" key={item.reason + item.agent}>
-          <div className="q-dot" style={{ background: item.color }} />
-          <div className="q-name">{item.agent} · {item.reason}</div>
-          <div className="q-cnt" style={{ color: COLOR_MAP[item.color_key] || 'var(--text)' }}>
-            {item.count}
-          </div>
-        </div>
-      ))}
+      {data.no_data
+        ? <div className="no-data-center"><i className="ti ti-clock-off" /><span>No pending follow-ups</span></div>
+        : (
+          <>
+            <div className="queue-total">
+              <span style={{ fontSize:22, fontWeight:700, color:'var(--text)' }}>{data.total}</span>
+              <span style={{ fontSize:11, color:'var(--text3)' }}>total pending</span>
+            </div>
+            {data.items.map(item => (
+              <div className="queue-row" key={item.reason + item.agent}>
+                <div className="q-dot" style={{ background: item.color }} />
+                <div className="q-name">{item.agent} · {item.reason}</div>
+                <div className="q-cnt" style={{ color: COLOR_MAP[item.color_key] || 'var(--text)' }}>
+                  {item.count}
+                </div>
+              </div>
+            ))}
+          </>
+        )
+      }
       <div style={{ marginTop:12, paddingTop:10, borderTop:'1px solid var(--border)' }}>
         <button
           className="soft-action"

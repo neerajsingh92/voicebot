@@ -7,14 +7,14 @@ async function get(path) {
 }
 
 export const api = {
-  dashboard:   (range) => get(`/api/dashboard?range=${range}`),
-  callVolume:  (range) => get(`/api/call-volume?range=${range}`),
-  agents:      (range) => get(`/api/agents?range=${range}`),
-  outcomes:    (range) => get(`/api/outcomes?range=${range}`),
-  funnel:      (range) => get(`/api/funnel?range=${range}`),
-  followUps:   ()      => get('/api/follow-ups'),
-  sessions:    (limit) => get(`/api/sessions?limit=${limit}`),
-  mcpTools:    (range) => get(`/api/mcp-tools?range=${range}`),
-  healthStatus:()      => get('/api/health-status'),
-  subStatus:   ()      => get('/api/subscriptions/status'),
+  dashboard:   (range)        => get(`/api/dashboard?range=${range}`),
+  callVolume:  (range)        => get(`/api/call-volume?range=${range}`),
+  agents:      (range)        => get(`/api/agents?range=${range}`),
+  outcomes:    (range)        => get(`/api/outcomes?range=${range}`),
+  funnel:      (range)        => get(`/api/funnel?range=${range}`),
+  followUps:   (range)        => get(`/api/follow-ups?range=${range}`),
+  sessions:    (range, limit) => get(`/api/sessions?range=${range}&limit=${limit}`),
+  mcpTools:    (range)        => get(`/api/mcp-tools?range=${range}`),
+  healthStatus:()             => get('/api/health-status'),
+  subStatus:   (range)        => get(`/api/subscriptions/status?range=${range}`),
 }

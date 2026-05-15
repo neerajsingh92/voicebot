@@ -69,7 +69,9 @@ export default function VolumeChart({ data, loading, theme }) {
       <div className="chart-wrap" style={{ height: 220 }}>
         {loading
           ? <div className="skeleton" style={{ height: '100%', borderRadius: 6 }} />
-          : <canvas ref={ref} role="img" aria-label="Bar chart of call volume by time period." />
+          : data?.no_data
+            ? <div className="no-data-center"><i className="ti ti-chart-bar-off" /><span>No call volume data for this period</span></div>
+            : <canvas ref={ref} role="img" aria-label="Bar chart of call volume by time period." />
         }
       </div>
     </div>

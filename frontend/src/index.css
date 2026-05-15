@@ -270,6 +270,12 @@ body {
 .skeleton { background: linear-gradient(90deg, var(--surface2) 25%, var(--bar-track) 50%, var(--surface2) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
 @keyframes shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
 
+/* ── No data states ──────────────────────────── */
+.no-data-banner { display:flex; align-items:center; gap:8px; padding:10px 14px; margin-bottom:12px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; font-size:12px; color:var(--text3); }
+.no-data-banner i { font-size:14px; color:var(--text3); }
+.no-data-center { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:32px 16px; color:var(--text3); font-size:12px; text-align:center; }
+.no-data-center i { font-size:24px; opacity:0.4; }
+
 /* ── Donut wrapper ───────────────────────────── */
 .donut-wrap { display: flex; flex-direction: column; align-items: center; }
 
