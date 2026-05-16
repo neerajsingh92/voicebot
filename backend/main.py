@@ -9,6 +9,7 @@ import db_queries as q
 
 STATIC_DIR = Path(__file__).parent / "static"
 
+# ── DB connection ─────────────────────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
